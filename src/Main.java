@@ -2,8 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
+import java.util.Base64;
 import javax.net.ssl.HttpsURLConnection;
 
 public class Main {
@@ -13,6 +12,7 @@ public class Main {
 		Main one = new Main();
 		one.dowork();
 	}
+	
 	
 	public void dowork() {
 		Boolean go = true;
@@ -26,9 +26,9 @@ public class Main {
 				File songsdirtemp = new File(pathinput);
 				if(songsdirtemp.exists()) location = pathinput;
 			}
-			System.out.println("osu! 노래 폴더 : " + location);
+			System.out.println("\nosu! 노래 폴더 : " + location);
 			
-			System.out.println("비트맵 복붙 by junheah\n\n1.비트맵 백업\n2.비트맵 복원\n3.종료\n");
+			System.out.println("비트맵 복붙 유틸  v0.2\n\nBy junheah [ osu.ppy.sh/user/junheah ]\n\n1.비트맵 백업\n2.비트맵 복원\n3.종료\n");
 			System.out.print("모드 : ");
 	        int input = Integer.parseInt(getinput());
 			System.out.println();
@@ -108,59 +108,110 @@ public class Main {
 				//check if bloodcat available
 				//preferences : novid, no hitsounds,  no background
 				
-			}else if(input==3) {
-				go = false;
-			}else if(input==4) {
-				//testing bloodcat
-				//bloodcatcaptcha(517064);
+				}else if(input==3) {
+					go = false;
+				}else if(input==4) {
+				//temp mode for testing bloodcat
 				
-				
+				String human = bloodcatcaptcha(517064);
+				System.out.print("비트맵 셋 id를 입력해 주세요 : ");
+				int id = Integer.parseInt(getinput());
+				downloadbloodcat(human,id,location);
 				
 			}
 		}
 	}
-	public void bloodcatcaptcha(int id) {
-		  
+	public void downloadbloodcat(String human, int id, String path) {
+		download("http://bloodcat.com/osu/s/"+id,path+"\\"+id+".osz",human);
+	}
+	//this solves bloodcats captcha and returns cookie("obm_human") in string
+	public String bloodcatcaptcha(int id) {
+		  String hash="",sync="",b64s="";
 		  String cookie = "";
+		  String cinput = "";
 		  Boolean captcha = false;
-		 //while(!captcha) {
+		  //Boolean requested = false;
+		 while(!captcha) {
 			  HttpURLConnection connection = null;
 			  try {
 			    //Create connection
 			    URL url = new URL("http://bloodcat.com/osu/s/"+id);
 			    connection = (HttpURLConnection) url.openConnection();
-			    connection.setRequestMethod("POST");
+			    
 			    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			    connection.setRequestProperty("User-Agent", "");
+			    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36");
 			    connection.setDoOutput(true); 
 			    connection.setDoInput(true); 
-			    if(cookie.length()>0) {
-			    	connection.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+			    if(cinput.length()>0) {
+			    	connection.setRequestMethod("POST");
+			    	//connection.addRequestProperty("Cookie", cookie.split(";", 2)[0]);
+			    	String urlParameters ="response="+cinput+"&sync="+sync+"&hash="+hash;
+			    	connection.setRequestProperty("Content-Length", Integer.toString(urlParameters.getBytes().length));				    
+				    DataOutputStream wr = new DataOutputStream (
+				        connection.getOutputStream());
+				    wr.writeBytes(urlParameters);
+				    wr.close();
+				    int response = connection.getResponseCode();
+				    if(response==200) {
+				    	System.out.println("success!");
+				    	cookie=connection.getHeaderField("Set-Cookie");
+				    	System.out.println(cookie);
+						   captcha = true;
+						   break;
+				    }else {
+				    	System.out.println("fail");
+				    	cinput="";
+				    	continue;
+				    }
+			    }else {
+			    	connection.setRequestMethod("GET");
 			    }
 			    //Send request
 			    DataOutputStream wr = new DataOutputStream (
 			        connection.getOutputStream());
 			    wr.close();
 			    
-			    //Get Response  
+			    //Read cookie from response header
 			    cookie = connection.getHeaderField("Set-cookie");
-			    //System.out.println(cookie);
+			    System.out.println(cookie);
 			    int code = connection.getResponseCode();
 			    if(code==200) {
 			    	captcha=true;
+			    	break;
 			    }else {
-			    	 //Get Response  
-			        InputStream is = connection.getInputStream();
+			    	//read body and get line for captcha image
+			        InputStream is = connection.getErrorStream();
 			        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
 			        String line;
 			        int lineno=1;
 			        while ((line = rd.readLine()) != null) {
-			        	System.out.println(lineno+" "+line);
+			        	if(lineno==23) b64s = line.split("\"")[1];
+			        	else if(lineno==33) sync = line.split("\"")[5];
+			        	else if(lineno==34) hash = line.split("\"")[5];
 			        	lineno++;
 			        }
 			        rd.close();
-			    	captcha=true;
-			    }
+			        //string print for debugging
+			        System.out.println("b64s : " + b64s);
+			        System.out.println("sync : " + sync);
+			        System.out.println("hash : " + hash);
+			        
+			        //manipulate string to obtain base 64 string
+			        String base64string = b64s;
+			        //base 64 string >> image file
+			        
+			        String base64Image = base64string.split(",")[1];
+			        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+			        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+			        File output = new File("captcha.png");
+			        FileOutputStream osf = new FileOutputStream(output);
+			        osf.write(imageBytes);
+			        osf.flush();
+			        //asks for user input
+			        System.out.println("captcha.png를 보고 보이는 숫자을 입력해 주세요 : ");
+			        cinput = getinput();
+			        
+			       }
 			  } catch (Exception e) {
 			    e.printStackTrace();
 			  } finally {
@@ -168,8 +219,8 @@ public class Main {
 			      connection.disconnect();
 			    }
 			  }
-			  //return cookie
-		  //}
+		  }
+		 return cookie.split(";",2)[0];
 		
 	}
 	public void downloadbeatmapset(int id,String cookie, String dir){
@@ -206,27 +257,36 @@ public class Main {
 			  }
 		if(downloadable) {
 			System.out.println("complete!");
-			download(tarlink,dir+"\\"+id+".osz");
+			download(tarlink,dir+"\\"+id+".osz","");
 			System.out.println("Download complete!\n");
 		}
 	}
 	
-	public static void download(String remotePath, String localPath) {
+	public static void download(String remotePath, String localPath, String cookies) {
 	    BufferedInputStream in = null;
 	    FileOutputStream out = null;
-
+	    
 	    try {
 	        URL url = new URL(remotePath);
-	        URLConnection conn = url.openConnection();
+	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36");
+		    conn.setRequestMethod("GET");
+	        if(cookies.length()>0) {
+	        	System.out.println(cookies);
+	        	conn.addRequestProperty("Cookie", cookies);
+	        }
 	        int size = conn.getContentLength();
 
 	        if (size < 0) {
 	            System.out.println("Could not get the file size");
-	        } else {
+	        }else if(size==33) {
+	        	System.out.println("beatmap inaccessible! Skipping...");
+	    	}else {
 	            System.out.println("File size: " + size);
 	        }
 
-	        in = new BufferedInputStream(url.openStream());
+	        in = new BufferedInputStream(conn.getInputStream());
 	        out = new FileOutputStream(localPath);
 	        byte data[] = new byte[1024];
 	        int count;
@@ -284,6 +344,7 @@ public class Main {
 		    connection.setDoOutput(true); 
 		    connection.setDoInput(true); 
 
+		    
 		    //Send request
 		    DataOutputStream wr = new DataOutputStream (
 		        connection.getOutputStream());
@@ -330,10 +391,8 @@ public class Main {
 		    wr.writeBytes(urlParameters);
 		    wr.close();
 
-			
-		    
 		    //Get Response  
-		    //String cookie = connection.getHeaderField("cookie");
+		    //String cookie = connection.getHeaderField("Set-Cookie");
 		    //System.out.println(cookie);
 		    int code = connection.getResponseCode();
 		    if(code==200) return true;
@@ -368,8 +427,8 @@ public class Main {
 		if(dir.exists()) {
 			return path;
 		}
-		//return "";
-		return "D:\\Program Files (x86)\\osu!\\Songs";
+		return "";
+		//return "D:\\Program Files (x86)\\osu!\\Songs";
 		
 	}
 	
