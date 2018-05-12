@@ -112,9 +112,10 @@ public class Main {
 				go = false;
 			}else if(input==4) {
 				//testing bloodcat
-				//bloodcatcaptcha(517064);
+				bloodcatcaptcha(517064);
+				//no
 				
-				
+				System.out.println("this is a test");
 				
 			}
 		}
