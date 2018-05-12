@@ -6,7 +6,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/junhea/Desktop/java-json.jar"/>
-	<classpathentry kind="lib" path="D:/downloads/jna-platform-4.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
