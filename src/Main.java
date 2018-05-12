@@ -107,12 +107,13 @@ public class Main {
 				
 				//check if bloodcat available
 				//preferences : novid, no hitsounds,  no background
+				
 			}else if(input==3) {
-				bloodcatcaptcha(517064);
-				
-				
-				//go = false;
-			}			
+				go = false;
+			}else if(input==4) {
+				//testing bloodcat
+				//bloodcatcaptcha(517064);
+			}
 		}
 	}
 	public void bloodcatcaptcha(int id) {
@@ -146,15 +147,15 @@ public class Main {
 			    	captcha=true;
 			    }else {
 			    	 //Get Response  
-			        //InputStream is = connection.getInputStream();
-			        //BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-			        //String line;
-			        //int lineno=1;
-//			        while ((line = rd.readLine()) != null) {
-//			        	System.out.println(lineno+" "+line);
-//			        	lineno++;
-//			        }
-//			        rd.close();
+			        InputStream is = connection.getInputStream();
+			        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+			        String line;
+			        int lineno=1;
+			        while ((line = rd.readLine()) != null) {
+			        	System.out.println(lineno+" "+line);
+			        	lineno++;
+			        }
+			        rd.close();
 			    	captcha=true;
 			    }
 			  } catch (Exception e) {
