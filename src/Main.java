@@ -16,9 +16,10 @@ public class Main {
 	
 	public void dowork() {
 		Boolean go = true;
-		String key = "";
+		//String key = "";
 		String location="";
 		while(go) {
+			System.out.println("비트맵 복 붙 유틸 (OSABRU) v0.2   -   By junheah [osu.ppy.sh/user/junheah]\n");
 			if(location.length()==0) location = getOsuDir();
 			while(location.length()==0) {
 				System.out.println("osu! 노래 폴더를 찾지 못했습니다.\n직접 입력해 주세요 : ");
@@ -26,14 +27,15 @@ public class Main {
 				File songsdirtemp = new File(pathinput);
 				if(songsdirtemp.exists()) location = pathinput;
 			}
-			System.out.println("\nosu! 노래 폴더 : " + location);
+			System.out.println("osu! 노래 폴더 : " + location+"\n");
 			
-			System.out.println("비트맵 복붙 유틸  v0.2\n\nBy junheah [ osu.ppy.sh/user/junheah ]\n\n1.비트맵 백업\n2.비트맵 복원\n3.종료\n");
+			
+			System.out.println("1.비트맵 백업\n2.비트맵 복원\n3.종료\n");
 			System.out.print("모드 : ");
 	        int input = Integer.parseInt(getinput());
 			System.out.println();
 			if(input==1) {
-				System.out.println("백업 모드");
+				System.out.println(" << 백업 모드 >> ");
 				String bname="";
 				File output;
 				while(bname.length()==0) {
@@ -66,19 +68,31 @@ public class Main {
 				System.out.println("백업을 성공적으로 완료했습니다\n출력 파일 : "+bname+".osubak\n");
 				
 			}else if(input==2) {
-				System.out.println("복원 모드");
-				//get user id & pw then test login
-				String user="", password="";
+				System.out.println(" << 복원 모드 >> ");
+				String human = "";
+				int choice = 0;
 				while(true) {
-					System.out.print("username : ");
-					user = getinput();
-					System.out.print("password : ");
-					password = getinput(); 
-					if(logintest(user,password)) {
-						System.out.println("Login Success!\n");
-						break;
+					System.out.println("\n1. osu.ppy.sh\n2. bloodcat.com/osu\n3. bloodcat/osu  >>>  osu.ppy.sh");
+					System.out.print("\n다운로드 방식을 선택해 주세요 : ");
+					choice = Integer.parseInt(getinput());
+					if(choice == 1 || choice == 2 || choice==3) break;
+				}
+				String user="", password="";
+				if(choice==1 || choice==3) {
+					//get user id & pw then test login
+					while(true) {
+						System.out.print("username : ");
+						user = getinput();
+						System.out.print("password : ");
+						password = getinput(); 
+						if(logintest(user,password)) {
+							System.out.println("Login Success!\n");
+							break;
+						}
+						else System.out.println("Login failed. Try again");
 					}
-					else System.out.println("Login failed. Try again");
+				}else if(choice==2 || choice==3) {
+					human = bloodcatcaptcha();
 				}
 				//parse backup
 				String bname = "";
@@ -99,9 +113,26 @@ public class Main {
 				int listmax = songlist.size();
 				System.out.println("총 " + listmax + "개의 맵셋을 다운로드 합니다");
 				String cookie = login(user,password);
-				for(int i=0;i<listmax;i++) {
-					System.out.println("["+(i+1)+"/"+ listmax+"]");
-					downloadbeatmapset(songlist.get(i),cookie,location);
+				
+				if(choice ==1) {
+					for(int i=0;i<listmax;i++) {
+						System.out.println("["+(i+1)+"/"+ listmax+"]");
+						downloadbeatmapset(songlist.get(i),cookie,location);
+					}
+				}else if(choice ==2) {
+					for(int i=0;i<listmax;i++) {
+						System.out.println("["+(i+1)+"/"+ listmax+"]");
+						if(downloadbloodcat(human,songlist.get(i),location)!=0) {
+							System.out.println("skipping...");
+						}
+					}
+				}else if(choice ==3) {
+					for(int i=0;i<listmax;i++) {
+						System.out.println("["+(i+1)+"/"+ listmax+"]");
+						if(downloadbloodcat(human,songlist.get(i),location)!=0) {
+							downloadbeatmapset(songlist.get(i),cookie,location);
+						}
+					}
 				}
 				
 				
@@ -110,22 +141,25 @@ public class Main {
 				
 				}else if(input==3) {
 					go = false;
-				}else if(input==4) {
-				//temp mode for testing bloodcat
-				
-				String human = bloodcatcaptcha(517064);
-				System.out.print("비트맵 셋 id를 입력해 주세요 : ");
-				int id = Integer.parseInt(getinput());
-				downloadbloodcat(human,id,location);
-				
-			}
+				}
+//				else if(input==4) {
+//				//temp mode for testing bloodcat
+//				
+//				String human = bloodcatcaptcha();
+//				System.out.print("비트맵 셋 id를 입력해 주세요 : ");
+//				int id = Integer.parseInt(getinput());
+//				downloadbloodcat(human,id,location);
+//				
+//			}
 		}
 	}
-	public void downloadbloodcat(String human, int id, String path) {
-		download("http://bloodcat.com/osu/s/"+id,path+"\\"+id+".osz",human);
+	public int downloadbloodcat(String human, int id, String path) {
+		System.out.println("BeatmapSet id : " + id);
+		return download("http://bloodcat.com/osu/s/"+id,path+"\\"+id+".osz",human);
 	}
 	//this solves bloodcats captcha and returns cookie("obm_human") in string
-	public String bloodcatcaptcha(int id) {
+	public String bloodcatcaptcha() {
+		int id = 8023;
 		  String hash="",sync="",b64s="";
 		  String cookie = "";
 		  String cinput = "";
@@ -153,13 +187,12 @@ public class Main {
 				    wr.close();
 				    int response = connection.getResponseCode();
 				    if(response==200) {
-				    	System.out.println("success!");
+				    	System.out.println("success!\n");
 				    	cookie=connection.getHeaderField("Set-Cookie");
-				    	System.out.println(cookie);
 						   captcha = true;
 						   break;
 				    }else {
-				    	System.out.println("fail");
+				    	System.out.println("fail\n");
 				    	cinput="";
 				    	continue;
 				    }
@@ -173,7 +206,6 @@ public class Main {
 			    
 			    //Read cookie from response header
 			    cookie = connection.getHeaderField("Set-cookie");
-			    System.out.println(cookie);
 			    int code = connection.getResponseCode();
 			    if(code==200) {
 			    	captcha=true;
@@ -192,9 +224,9 @@ public class Main {
 			        }
 			        rd.close();
 			        //string print for debugging
-			        System.out.println("b64s : " + b64s);
-			        System.out.println("sync : " + sync);
-			        System.out.println("hash : " + hash);
+//			        System.out.println("b64s : " + b64s);
+//			        System.out.println("sync : " + sync);
+//			        System.out.println("hash : " + hash);
 			        
 			        //manipulate string to obtain base 64 string
 			        String base64string = b64s;
@@ -202,13 +234,13 @@ public class Main {
 			        
 			        String base64Image = base64string.split(",")[1];
 			        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-			        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
 			        File output = new File("captcha.png");
 			        FileOutputStream osf = new FileOutputStream(output);
 			        osf.write(imageBytes);
 			        osf.flush();
+			        osf.close();
 			        //asks for user input
-			        System.out.println("captcha.png를 보고 보이는 숫자을 입력해 주세요 : ");
+			        System.out.print("\ncaptcha.png를 보고 보이는 숫자을 입력해 주세요 : ");
 			        cinput = getinput();
 			        
 			       }
@@ -262,7 +294,7 @@ public class Main {
 		}
 	}
 	
-	public static void download(String remotePath, String localPath, String cookies) {
+	public static int download(String remotePath, String localPath, String cookies) {
 	    BufferedInputStream in = null;
 	    FileOutputStream out = null;
 	    
@@ -273,7 +305,6 @@ public class Main {
 		    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36");
 		    conn.setRequestMethod("GET");
 	        if(cookies.length()>0) {
-	        	System.out.println(cookies);
 	        	conn.addRequestProperty("Cookie", cookies);
 	        }
 	        int size = conn.getContentLength();
@@ -281,7 +312,8 @@ public class Main {
 	        if (size < 0) {
 	            System.out.println("Could not get the file size");
 	        }else if(size==33) {
-	        	System.out.println("beatmap inaccessible! Skipping...");
+	        	System.out.println("beatmap inaccessible!");
+	        	return 1;
 	    	}else {
 	            System.out.println("File size: " + size);
 	        }
@@ -323,6 +355,8 @@ public class Main {
 	                e4.printStackTrace();
 	            }
 	    }
+	    //success
+	    return 0;
 	}
 	
 	public String login(String user, String password) {
@@ -330,8 +364,6 @@ public class Main {
 		String targetURL = "https://osu.ppy.sh/session";
 		String urlParameters = "username="+user+"&password="+password;
 		HttpsURLConnection connection = null;
-		
-
 		  try {
 		    //Create connection
 		    URL url = new URL(targetURL);
@@ -343,16 +375,13 @@ public class Main {
 		    connection.setRequestProperty("User-Agent", "");  
 		    connection.setDoOutput(true); 
 		    connection.setDoInput(true); 
-
-		    
+ 
 		    //Send request
 		    DataOutputStream wr = new DataOutputStream (
 		        connection.getOutputStream());
 		    wr.writeBytes(urlParameters);
 		    wr.close();
 
-			
-		    
 		    //Get Response  
 		    cookie = connection.getHeaderField("Set-Cookie");
 		    return cookie;
@@ -433,7 +462,7 @@ public class Main {
 	}
 	
 	public List<Integer> getSongs(String directoryPath) {
-	    File directory = new File(directoryPath);
+	    File directory = new File( directoryPath);
 		
 	    FileFilter directoryFileFilter = new FileFilter() {
 	        public boolean accept(File file) {
