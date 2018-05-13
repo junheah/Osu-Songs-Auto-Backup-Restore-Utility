@@ -133,7 +133,7 @@ public class Main {
 				//lol what the fuck?
 				//List<Integer> songlist = getSongs(location);
 				
-				int listmax = listtmp.size();
+				int listmax = listtmp.length;
 				System.out.println("총 " + listmax + "개의 맵셋을 다운로드 합니다");
 				String cookie = login(user,password);
 				
