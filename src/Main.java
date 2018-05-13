@@ -100,7 +100,7 @@ public class Main {
 				File output;
 				while(bname.length()==0) {
 					System.out.print("백업 파일의 이름을 입력해 주세요 (같은 폴더에 있어야 함, 확장자 포함) : ");
-					bname=getinput();
+					bname = getinput();
 					output = new File(bname);
 					if(output.exists()) {
 						System.out.println("file found!\n");
@@ -109,21 +109,43 @@ public class Main {
 						bname="";
 					}
 				}
-				List<Integer> songlist = getSongs(location);
 				
-				int listmax = songlist.size();
+		        String[] listtmp = {};
+		        try {
+		        	BufferedReader br;
+		        	br = new BufferedReader(new FileReader(output));
+		            StringBuilder sb = new StringBuilder();
+		            String line = br.readLine();
+
+		            while (line != null) {
+		                sb.append(line);
+		                sb.append(System.lineSeparator());
+		                line = br.readLine();
+		            }
+		            listtmp = sb.toString().split(",");
+		            br.close();
+		        } catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		        
+		        
+				//lol what the fuck?
+				//List<Integer> songlist = getSongs(location);
+				
+				int listmax = listtmp.size();
 				System.out.println("총 " + listmax + "개의 맵셋을 다운로드 합니다");
 				String cookie = login(user,password);
 				
 				if(choice ==1) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
-						downloadbeatmapset(songlist.get(i),cookie,location);
+						downloadbeatmapset(Integer.parseInt(listtmp.get(i)),cookie,location);
 					}
 				}else if(choice ==2) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
-						if(downloadbloodcat(human,songlist.get(i),location)!=0) {
+						if(downloadbloodcat(human,Integer.parseInt(listtmp.get(i)),location)!=0) {
 							System.out.println("skipping...");
 						}
 					}
@@ -131,7 +153,7 @@ public class Main {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
 						if(downloadbloodcat(human,songlist.get(i),location)!=0) {
-							downloadbeatmapset(songlist.get(i),cookie,location);
+							downloadbeatmapset(Integer.parseInt(listtmp.get(i)),cookie,location);
 						}
 					}
 				}
@@ -463,7 +485,7 @@ public class Main {
 	}
 	
 	public List<Integer> getSongs(String directoryPath) {
-	    File directory = new File( directoryPath);
+	    File directory = new File(directoryPath);
 		
 	    FileFilter directoryFileFilter = new FileFilter() {
 	        public boolean accept(File file) {
