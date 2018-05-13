@@ -19,23 +19,23 @@ public class Main {
 		//String key = "";
 		String location="";
 		while(go) {
-			System.out.println("ºñÆ®¸Ê º¹ ºÙ À¯Æ¿ (OSABRU) v0.2   -   By junheah [osu.ppy.sh/user/junheah]\n");
+			System.out.println("ë¹„íŠ¸ë§µ ë³µ ë¶™ ìœ í‹¸ (OSABRU) v0.2   -   By junheah [osu.ppy.sh/user/junheah]\n");
 			if(location.length()==0) location = getOsuDir();
 			while(location.length()==0) {
-				System.out.println("osu! ³ë·¡ Æú´õ¸¦ Ã£Áö ¸øÇß½À´Ï´Ù.\nÁ÷Á¢ ÀÔ·ÂÇØ ÁÖ¼¼¿ä : ");
+				System.out.println("osu! ë…¸ë˜ í´ë”ë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.\nì§ì ‘ ì…ë ¥í•´ ì£¼ì„¸ìš” : ");
 				String pathinput = getinput();
 				File songsdirtemp = new File(pathinput);
 				if(songsdirtemp.exists()) location = pathinput;
 			}
-			System.out.println("osu! ³ë·¡ Æú´õ : " + location+"\n");
+			System.out.println("osu! ë…¸ë˜ í´ë” : " + location+"\n");
 			
 			
-			System.out.println("1.ºñÆ®¸Ê ¹é¾÷\n2.ºñÆ®¸Ê º¹¿ø\n3.Á¾·á\n");
-			System.out.print("¸ğµå : ");
+			System.out.println("1.ë¹„íŠ¸ë§µ ë°±ì—…\n2.ë¹„íŠ¸ë§µ ë³µì›\n3.ì¢…ë£Œ\n");
+			System.out.print("ëª¨ë“œ : ");
 	        int input = Integer.parseInt(getinput());
 			System.out.println();
 			if(input==1) {
-				System.out.println(" << ¹é¾÷ ¸ğµå >> ");
+				System.out.println(" << ë°±ì—… ëª¨ë“œ >> ");
 				String bname="";
 				File output;
 				while(bname.length()==0) {
@@ -65,15 +65,15 @@ public class Main {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				System.out.println("¹é¾÷À» ¼º°øÀûÀ¸·Î ¿Ï·áÇß½À´Ï´Ù\nÃâ·Â ÆÄÀÏ : "+bname+".osubak\n");
+				System.out.println("ë°±ì—…ì„ ì„±ê³µì ìœ¼ë¡œ ì™„ë£Œí–ˆìŠµë‹ˆë‹¤\nì¶œë ¥ íŒŒì¼ : "+bname+".osubak\n");
 				
 			}else if(input==2) {
-				System.out.println(" << º¹¿ø ¸ğµå >> ");
+				System.out.println(" << ë³µì› ëª¨ë“œ >> ");
 				String human = "";
 				int choice = 0;
 				while(true) {
 					System.out.println("\n1. osu.ppy.sh\n2. bloodcat.com/osu\n3. bloodcat/osu  >>>  osu.ppy.sh");
-					System.out.print("\n´Ù¿î·Îµå ¹æ½ÄÀ» ¼±ÅÃÇØ ÁÖ¼¼¿ä : ");
+					System.out.print("\në‹¤ìš´ë¡œë“œ ë°©ì‹ì„ ì„ íƒí•´ ì£¼ì„¸ìš” : ");
 					choice = Integer.parseInt(getinput());
 					if(choice == 1 || choice == 2 || choice==3) break;
 				}
@@ -91,14 +91,15 @@ public class Main {
 						}
 						else System.out.println("Login failed. Try again");
 					}
-				}else if(choice==2 || choice==3) {
+				}
+				if(choice==2 || choice==3) {
 					human = bloodcatcaptcha();
 				}
 				//parse backup
 				String bname = "";
 				File output;
 				while(bname.length()==0) {
-					System.out.print("¹é¾÷ ÆÄÀÏÀÇ ÀÌ¸§À» ÀÔ·ÂÇØ ÁÖ¼¼¿ä (°°Àº Æú´õ¿¡ ÀÖ¾î¾ß ÇÔ, È®ÀåÀÚ Æ÷ÇÔ) : ");
+					System.out.print("ë°±ì—… íŒŒì¼ì˜ ì´ë¦„ì„ ì…ë ¥í•´ ì£¼ì„¸ìš” (ê°™ì€ í´ë”ì— ìˆì–´ì•¼ í•¨, í™•ì¥ì í¬í•¨) : ");
 					bname=getinput();
 					output = new File(bname);
 					if(output.exists()) {
@@ -111,7 +112,7 @@ public class Main {
 				List<Integer> songlist = getSongs(location);
 				
 				int listmax = songlist.size();
-				System.out.println("ÃÑ " + listmax + "°³ÀÇ ¸Ê¼ÂÀ» ´Ù¿î·Îµå ÇÕ´Ï´Ù");
+				System.out.println("ì´ " + listmax + "ê°œì˜ ë§µì…‹ì„ ë‹¤ìš´ë¡œë“œ í•©ë‹ˆë‹¤");
 				String cookie = login(user,password);
 				
 				if(choice ==1) {
@@ -146,7 +147,7 @@ public class Main {
 //				//temp mode for testing bloodcat
 //				
 //				String human = bloodcatcaptcha();
-//				System.out.print("ºñÆ®¸Ê ¼Â id¸¦ ÀÔ·ÂÇØ ÁÖ¼¼¿ä : ");
+//				System.out.print("ë¹„íŠ¸ë§µ ì…‹ idë¥¼ ì…ë ¥í•´ ì£¼ì„¸ìš” : ");
 //				int id = Integer.parseInt(getinput());
 //				downloadbloodcat(human,id,location);
 //				
@@ -240,7 +241,7 @@ public class Main {
 			        osf.flush();
 			        osf.close();
 			        //asks for user input
-			        System.out.print("\ncaptcha.png¸¦ º¸°í º¸ÀÌ´Â ¼ıÀÚÀ» ÀÔ·ÂÇØ ÁÖ¼¼¿ä : ");
+			        System.out.print("\ncaptcha.pngë¥¼ ë³´ê³  ë³´ì´ëŠ” ìˆ«ìì„ ì…ë ¥í•´ ì£¼ì„¸ìš” : ");
 			        cinput = getinput();
 			        
 			       }
