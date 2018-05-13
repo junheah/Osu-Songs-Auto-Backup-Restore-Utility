@@ -145,7 +145,7 @@ public class Main {
 				}else if(choice ==2) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
-						if(downloadbloodcat(human,Integer.parseInt(listtmp.get(i)),location)!=0) {
+						if(downloadbloodcat(human,Integer.parseInt(listtmp[i]),location)!=0) {
 							System.out.println("skipping...");
 						}
 					}
