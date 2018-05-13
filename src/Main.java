@@ -140,7 +140,7 @@ public class Main {
 				if(choice ==1) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
-						downloadbeatmapset(Integer.parseInt(listtmp.get(i)),cookie,location);
+						downloadbeatmapset(Integer.parseInt(listtmp[i]),cookie,location);
 					}
 				}else if(choice ==2) {
 					for(int i=0;i<listmax;i++) {
@@ -152,8 +152,8 @@ public class Main {
 				}else if(choice ==3) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
-						if(downloadbloodcat(human,songlist.get(i),location)!=0) {
-							downloadbeatmapset(Integer.parseInt(listtmp.get(i)),cookie,location);
+						if(downloadbloodcat(human,songlist[i],location)!=0) {
+							downloadbeatmapset(Integer.parseInt(listtmp[i]),cookie,location);
 						}
 					}
 				}
