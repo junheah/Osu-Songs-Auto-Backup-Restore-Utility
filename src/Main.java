@@ -33,6 +33,7 @@ public class Main {
 			System.out.println("1.비트맵 백업\n2.비트맵 복원\n3.종료\n");
 			System.out.print("모드 : ");
 	        int input = Integer.parseInt(getinput());
+	        //this
 			System.out.println();
 			if(input==1) {
 				System.out.println(" << 백업 모드 >> ");
