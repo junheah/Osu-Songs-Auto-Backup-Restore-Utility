@@ -57,7 +57,7 @@ public class Main {
 				try {
 					outputWriter = new BufferedWriter(new FileWriter(output));
 					for(int i=0; i<songs.size(); i++) {
-						if(i==songs.size()-1) outputWriter.write(songs.get(i));
+						if(i==songs.size()-1) outputWriter.write(songs.get(i)+"");
 						else outputWriter.write(songs.get(i)+",");
 					}			
 					outputWriter.flush();  
