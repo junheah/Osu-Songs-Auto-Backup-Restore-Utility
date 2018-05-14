@@ -25,31 +25,41 @@ public class downloader implements Runnable{
 	public void run() {
 		
 		int listmax = idlist.length;
-		
-		
-		if(mode ==0) {
-			for(int i=0;i<listmax;i++) {
-				Main.changecounter("["+(i+1)+"/"+ listmax+"]");
-				downloadbeatmapset(Integer.parseInt(idlist[i]),login,location);
+		int skipped = 0;
+		for(int i=0;i<listmax;i++) {
+			int id = 0;
+			//System.out.println("["+(i+1)+"/"+ listmax+"]");
+			try {
+				//System.out.println(idlist[i]);
+				id = Integer.parseInt(idlist[i]);
+			}catch(Exception e) {
+				//System.out.println("error occured! skipping...");
+				e.printStackTrace();
+				skipped++;
+				continue;
 			}
-		}else if(mode ==1) {
-			for(int i=0;i<listmax;i++) {
-				Main.changecounter("["+(i+1)+"/"+ listmax+"]");
-				if(downloadbloodcat(captcha,Integer.parseInt(idlist[i]),location)!=0) {
-					//skips
+			Main.changecounter("["+(i+1)+"/"+ listmax+"]");
+			
+			if(mode ==0) {
+				downloadbeatmapset(id,login,location);
+			}else if(mode ==1) {
+				if(downloadbloodcat(captcha,id,location)!=0) {
+					//System.out.println("skipping...");
 				}
-			}
-		}else if(mode ==2) {
-			for(int i=0;i<listmax;i++) {
-				Main.changecounter("["+(i+1)+"/"+ listmax+"]");
-				if(downloadbloodcat(captcha,Integer.parseInt(idlist[i]),location)!=0) {
-					downloadbeatmapset(Integer.parseInt(idlist[i]),login,location);
+			}else if(mode ==2) {
+				if(downloadbloodcat(captcha,id,location)!=0) {
+					downloadbeatmapset(id,login,location);
 				}
 			}
 		}
-
+		Main.changeprogress(0);
+		Main.changecounter("Downloaded " + (listmax-skipped) + " out of " + listmax + " beatmapsets.");
+		Main.dlfinished(listmax, skipped);
+		return;
 		
 	}
+	
+	
 	public int downloadbloodcat(String human, int id, String path) {
 		return download("http://bloodcat.com/osu/s/"+id,path+"\\"+id+".osz",human);
 	}

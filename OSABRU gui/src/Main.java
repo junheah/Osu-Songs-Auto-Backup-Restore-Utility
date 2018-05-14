@@ -4,36 +4,42 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 
-import java.awt.EventQueue;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
 
-import org.eclipse.jface.dialogs.IDialogConstants;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
+
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
 
 public class Main {
 
 	protected static Shell shlOsuSongsAuto;
-	private Text text;
+	private static Text text;
 	private static ProgressBar progressBar;
 	private static Label lblCounter;
 	Thread downloader;
+	static Button btnBrowse, btnRestore, btnBackup;
+	static Combo combo;
 
 	/**
 	 * Launch the application.
@@ -75,121 +81,220 @@ public class Main {
 				System.exit(0);
 			}
 		});
-		shlOsuSongsAuto.setSize(507, 209);
-		shlOsuSongsAuto.setText("OSABRU by junheah");
+		shlOsuSongsAuto.setSize(492, 213);
+		shlOsuSongsAuto.setText("OSABRU v0.1 by junheah");
+		shlOsuSongsAuto.setLayout(new FormLayout());
 		
-		Combo combo = new Combo(shlOsuSongsAuto, SWT.READ_ONLY);
+		combo = new Combo(shlOsuSongsAuto, SWT.READ_ONLY);
+		FormData fd_combo = new FormData();
+		fd_combo.right = new FormAttachment(100, -10);
+		fd_combo.top = new FormAttachment(0, 71);
+		combo.setLayoutData(fd_combo);
 		combo.setTextDirection(0);
 		combo.setItems(new String[] {"osu.ppy.sh", "bloodcat.com", "bloodcat.com >> osu.ppy.sh"});
-		combo.setBounds(208, 71, 277, 28);
 		combo.select(0);
 		
 		Label lblNewLabel = new Label(shlOsuSongsAuto, SWT.NONE);
-		lblNewLabel.setBounds(10, 10, 83, 20);
+		FormData fd_lblNewLabel = new FormData();
+		fd_lblNewLabel.top = new FormAttachment(0, 13);
+		fd_lblNewLabel.left = new FormAttachment(0, 10);
+		lblNewLabel.setLayoutData(fd_lblNewLabel);
 		lblNewLabel.setText("Songs Dir :");
 		
 		text = new Text(shlOsuSongsAuto, SWT.BORDER);
-		text.setBounds(99, 10, 386, 26);
+		fd_lblNewLabel.right = new FormAttachment(text, -6);
+		FormData fd_text = new FormData();
+		fd_text.left = new FormAttachment(0, 99);
+		text.setLayoutData(fd_text);
 		
 		//set text to osu dir
 		location = osabru.getOsuDir();
-		if(location.length()>0) text.setText(location);
-		else text.setText("Osu Songs folder not found! Please enter manually");
+		text.setText(location);
 		
 		
-		Button btnBackup = new Button(shlOsuSongsAuto, SWT.NONE);
+		btnBackup = new Button(shlOsuSongsAuto, SWT.NONE);
+		FormData fd_btnBackup = new FormData();
+		fd_btnBackup.left = new FormAttachment(0, 10);
+		fd_btnBackup.top = new FormAttachment(text, 33);
+		btnBackup.setLayoutData(fd_btnBackup);
 		btnBackup.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//when backup button pressed
-				FileDialog dialog = new FileDialog(shlOsuSongsAuto, SWT.SAVE);
-				String[] filterExt = { ".osubak", "*.*" };
-		        dialog.setFilterExtensions(filterExt);
-		        String selected = dialog.open();
+				if(text.getText().length()>0) {
+					FileDialog dialog = new FileDialog(shlOsuSongsAuto, SWT.SAVE);
+					String[] filterExt = { ".osubak" };
+			        dialog.setFilterExtensions(filterExt);
+			        String target = dialog.open();
+			        
+			        
+			        //get song id list to array list
+					List<Integer> songs = osabru.getSongs(location);
+					File output = new File(target);
+					//write to file
+					BufferedWriter outputWriter = null;
+					  
+					try {
+						outputWriter = new BufferedWriter(new FileWriter(output));
+						for(int i=0; i<songs.size(); i++) {
+							if(i==songs.size()-1) outputWriter.write(songs.get(i)+"");
+							else outputWriter.write(songs.get(i)+",");
+						}			
+						outputWriter.flush();  
+						outputWriter.close(); 
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					MessageBox dialog2 = new MessageBox(shlOsuSongsAuto, SWT.ICON_INFORMATION | SWT.OK);
+					dialog2.setText("alert");
+					dialog2.setMessage("Successfully backed up "+(songs.size())+" beatmapsets");
+					dialog2.open();
+			        
+			        
+				}else {
+					MessageBox dialog = new MessageBox(shlOsuSongsAuto, SWT.ICON_ERROR | SWT.OK);
+					dialog.setText("alert");
+					dialog.setMessage("Please select osu! songs directory");
+					dialog.open();
+				}
 				
 			}
 		});
-		btnBackup.setBounds(10, 61, 93, 30);
 		btnBackup.setText("Backup");
 		
-		Button btnRestore = new Button(shlOsuSongsAuto, SWT.NONE);
+		btnRestore = new Button(shlOsuSongsAuto, SWT.NONE);
+		fd_btnBackup.right = new FormAttachment(btnRestore, -6);
+		fd_combo.left = new FormAttachment(0, 208);
+		FormData fd_btnRestore = new FormData();
+		fd_btnRestore.top = new FormAttachment(combo, -2, SWT.TOP);
+		fd_btnRestore.right = new FormAttachment(combo, -6);
+		fd_btnRestore.left = new FormAttachment(0, 109);
+		btnRestore.setLayoutData(fd_btnRestore);
 		btnRestore.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
+				if(text.getText().length()>0) {
 				//when restore button pressed
 
-				 FileDialog fd = new FileDialog(shlOsuSongsAuto, SWT.OPEN);
-			     String[] filterExt = { "*.osubak", "*.*" };
-			     fd.setFilterExtensions(filterExt);
-			     String selected = fd.open();
-			     System.out.println(selected);
-			     if(selected!=null) {	 
-			    	//read backupfile
-			        BufferedReader br;
-			        String[] listtmp = {};
-			        try {
-			        	br = new BufferedReader(new FileReader(selected));
-			            StringBuilder sb = new StringBuilder();
-			            String line = br.readLine();
-
-			            while (line != null) {
-			                sb.append(line);
-			                sb.append(System.lineSeparator());
-			                line = br.readLine();
-			            }
-			            listtmp = sb.toString().split(",");
-			            br.close();
-			        } catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-			        //asks user for confirmation
-			        MessageBox messageBox = new MessageBox(shlOsuSongsAuto, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-			        messageBox.setMessage("Downloading "+(listtmp.length+1) +" beatmapsets. Continue?");
-			        messageBox.setText("Confirm action");
-			        int response = messageBox.open();
-			        if (response == SWT.YES) {
-			        	String logincookie = "";
-			        	String captchacookie = "";
-			        	//captcha and login stuff
-			        	int dlmode = combo.getSelectionIndex();
-			        	if(dlmode == 0 || dlmode == 2) {
-			        		//osu.ppy.sh login
-			        		logindialog l = new logindialog(shlOsuSongsAuto,SWT.OPEN);
-			        		logincookie = l.open();
-			        		if(logincookie.length()<=0) shlOsuSongsAuto.dispose();
-			        		System.out.println(logincookie);
+					 FileDialog fd = new FileDialog(shlOsuSongsAuto, SWT.OPEN);
+				     String[] filterExt = { "*.osubak", "*.*" };
+				     fd.setFilterExtensions(filterExt);
+				     String selected = fd.open();
+				     //System.out.println(selected);
+				     if(selected!=null) {	 
+				    	//read backupfile
+				        BufferedReader br;
+				        String[] listtmp = {};
+				        try {
+				        	br = new BufferedReader(new FileReader(selected));
+				            StringBuilder sb = new StringBuilder();
+				            String line = br.readLine();
+	
+				            while (line != null) {
+				                sb.append(line);
+				                sb.append(System.lineSeparator());
+				                line = br.readLine();
+				            }
+				            listtmp = sb.toString().split(",");
+				            br.close();
+				        } catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+				        //asks user for confirmation
+				        MessageBox messageBox = new MessageBox(shlOsuSongsAuto, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+				        messageBox.setMessage("Downloading "+(listtmp.length) +" beatmapsets. Continue?");
+				        messageBox.setText("Confirm action");
+				        int response = messageBox.open();
+				        if (response == SWT.YES) {
+				        	String logincookie = "";
+				        	String captchacookie = "";
+				        	//captcha and login stuff
+				        	int dlmode = combo.getSelectionIndex();
+				        	if(dlmode == 0 || dlmode == 2) {
+				        		//osu.ppy.sh login
+				        		logindialog l = new logindialog(shlOsuSongsAuto,SWT.OPEN);
+				        		logincookie = l.open();
+				        		if(logincookie.length()<=0) shlOsuSongsAuto.dispose();
+				        		//System.out.println(logincookie);
+				        	}
+				        	if(dlmode == 1 || dlmode == 2) {
+				        		//bloodcat.com captcha
+				        		captchadialog c = new captchadialog(shlOsuSongsAuto,SWT.OPEN);
+				        		captchacookie = c.open();
+				        		if(captchacookie.length()<=0) shlOsuSongsAuto.dispose();
+				        		//System.out.println(captchacookie);
+				        	}
+				        	//disable shit
+				        	text.setEnabled(false);
+							btnBrowse.setEnabled(false);
+							btnRestore.setEnabled(false);
+							btnBackup.setEnabled(false);
+							combo.setEnabled(false);
+				        	//download shit
+				        	location = text.getText();
+				        	downloader = new Thread(new downloader(captchacookie, logincookie, location, dlmode, listtmp));
+				        	downloader.start();
+	
 			        	}
-			        	if(dlmode == 1 || dlmode == 2) {
-			        		//bloodcat.com captcha
-			        		captchadialog c = new captchadialog(shlOsuSongsAuto,SWT.OPEN);
-			        		captchacookie = c.open();
-			        		if(captchacookie.length()<=0) shlOsuSongsAuto.dispose();
-			        		System.out.println(captchacookie);
-			        	}
-			        	
-			        	//download shit
-			        	location = text.getText();
-			        	downloader = new Thread(new downloader(captchacookie, logincookie, location, dlmode, listtmp));
-			        	downloader.start();
-
-			            	
-			        }
-			    }
+			     	}
+				}else {
+					MessageBox dialog = new MessageBox(shlOsuSongsAuto, SWT.ICON_ERROR | SWT.OK);
+					dialog.setText("alert");
+					dialog.setMessage("Please select osu! songs directory");
+					dialog.open();
+				}
 			}
 		});
-		btnRestore.setBounds(109, 61, 93, 30);
 		btnRestore.setText("Restore");
 		
 		progressBar = new ProgressBar(shlOsuSongsAuto, SWT.SMOOTH);
-		progressBar.setBounds(10, 131, 475, 21);
+		FormData fd_progressBar = new FormData();
+		fd_progressBar.left = new FormAttachment(0, 10);
+		fd_progressBar.right = new FormAttachment(100, -10);
+		fd_progressBar.bottom = new FormAttachment(100, -10);
+		progressBar.setLayoutData(fd_progressBar);
 		
 		Label lblDownloadFrom = new Label(shlOsuSongsAuto, SWT.NONE);
-		lblDownloadFrom.setBounds(208, 45, 157, 20);
+		fd_text.bottom = new FormAttachment(lblDownloadFrom, -9);
+		FormData fd_lblDownloadFrom = new FormData();
+		fd_lblDownloadFrom.bottom = new FormAttachment(combo, -6);
+		fd_lblDownloadFrom.left = new FormAttachment(0, 208);
+		fd_lblDownloadFrom.right = new FormAttachment(100, -10);
+		lblDownloadFrom.setLayoutData(fd_lblDownloadFrom);
 		lblDownloadFrom.setText("Download from :");
 		
 		lblCounter = new Label(shlOsuSongsAuto, SWT.NONE);
-		lblCounter.setBounds(10, 105, 192, 20);
+		FormData fd_lblCounter = new FormData();
+		fd_lblCounter.right = new FormAttachment(combo, 0, SWT.RIGHT);
+		fd_lblCounter.top = new FormAttachment(0, 105);
+		fd_lblCounter.left = new FormAttachment(0, 10);
+		lblCounter.setLayoutData(fd_lblCounter);
+		
+		btnBrowse = new Button(shlOsuSongsAuto, SWT.NONE);
+		btnBrowse.addSelectionListener(new SelectionAdapter() {
+			//when browse button pressed
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				DirectoryDialog dialog = new DirectoryDialog(shlOsuSongsAuto);
+			    //dialog.setFilterPath("c:\\"); // Windows specific
+			    try{
+			    	location = dialog.open();
+			    	text.setText(location);
+			    }catch(Exception r) {
+			    	
+			    }
+			    
+			}
+		});
+		fd_text.right = new FormAttachment(btnBrowse, -6);
+		FormData fd_btnBrowse = new FormData();
+		fd_btnBrowse.top = new FormAttachment(0, 8);
+		fd_btnBrowse.right = new FormAttachment(100, -10);
+		btnBrowse.setLayoutData(fd_btnBrowse);
+		btnBrowse.setText("Browse");
 		
 	}
 
@@ -207,5 +312,23 @@ public class Main {
 		    	lblCounter.setText(count);
 		    }
 		  });
+	}
+	public static void dlfinished(int lmax, int skipped) {
+		Display.getDefault().asyncExec(new Runnable() {
+		    public void run() {
+		    	//alert
+		    	MessageBox dialog = new MessageBox(shlOsuSongsAuto, SWT.ICON_INFORMATION | SWT.OK);
+				dialog.setText("alert");
+				dialog.setMessage("Downloaded "+(lmax-skipped)+" out of "+(lmax) + " beatmapsets.");
+				dialog.open();
+				//enable ui's
+				text.setEnabled(true);
+				btnBrowse.setEnabled(true);
+				btnRestore.setEnabled(true);
+				btnBackup.setEnabled(true);
+				combo.setEnabled(true);
+		    }
+		  });
+		
 	}
 }

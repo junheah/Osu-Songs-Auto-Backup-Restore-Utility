@@ -47,7 +47,7 @@ public class osabru{
 		  String hash="",sync="",b64s="";
 		  String cookie = "";
 		  String cinput = "";
-		  //String b64="";
+		  String b64="";
 
 		  //Boolean requested = false;
 
@@ -226,7 +226,7 @@ public class osabru{
 		
 	}
 	
-	public List<Integer> getSongs(String directoryPath) {
+	public static List<Integer> getSongs(String directoryPath) {
 	    File directory = new File( directoryPath);
 		
 	    FileFilter directoryFileFilter = new FileFilter() {
@@ -240,9 +240,11 @@ public class osabru{
 	    for (File directoryAsFile : directoryListAsFile) {
 	        String name = directoryAsFile.getName();
 	        String[] names = name.split(" ");
+	        
 	        int songid = 0;
 	        try {
 	        	 songid = Integer.parseInt(names[0]);
+	        	 
 	        }catch(NumberFormatException ex) {
 	        	continue;
 	        }
