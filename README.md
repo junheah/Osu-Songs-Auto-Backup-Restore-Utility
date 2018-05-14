@@ -3,11 +3,10 @@
 currently working on gui on staging branch
 
 
-master is not working atm ( code has been modified and not tested )
+master is not verified atm ( code has been modified and not tested )
 
 
-release 0.0.1 and 0.0.2 has major flaws and does not work properly ( needs a very simple fix but im just working on gui )
-
+release 0.0.1 and 0.0.2 has major flaws
 
 
 
@@ -16,3 +15,11 @@ TODO's:
 -beautify gui
 
 -get backup function to work
+
+
+
+
+
+
+
+
