@@ -137,6 +137,8 @@ public class Main {
 				System.out.println("총 " + listmax + "개의 맵셋을 다운로드 합니다");
 				String cookie = login(user,password);
 				
+
+
 				if(choice ==1) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
@@ -152,7 +154,7 @@ public class Main {
 				}else if(choice ==3) {
 					for(int i=0;i<listmax;i++) {
 						System.out.println("["+(i+1)+"/"+ listmax+"]");
-						if(downloadbloodcat(human,songlist[i],location)!=0) {
+						if(downloadbloodcat(human,Integer.parseInt(listtmp[i]),location)!=0) {
 							downloadbeatmapset(Integer.parseInt(listtmp[i]),cookie,location);
 						}
 					}
