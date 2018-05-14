@@ -19,7 +19,7 @@ public class Main {
 		//String key = "";
 		String location="";
 		while(go) {
-			System.out.println("비트맵 복 붙 유틸 (OSABRU) v0.3   -   By junheah [osu.ppy.sh/user/junheah]\n");
+			System.out.println("비트맵 복 붙 유틸 (OSABRU) v0.0.3   -   By junheah [osu.ppy.sh/user/junheah]\n");
 			if(location.length()==0) location = getOsuDir();
 			while(location.length()==0) {
 				System.out.println("osu! 노래 폴더를 찾지 못했습니다.\n직접 입력해 주세요 : ");
@@ -33,7 +33,7 @@ public class Main {
 			System.out.println("1.비트맵 백업\n2.비트맵 복원\n3.종료\n");
 			System.out.print("모드 : ");
 	        int input = Integer.parseInt(getinput());
-	        //this
+
 			System.out.println();
 			if(input==1) {
 				System.out.println(" << 백업 모드 >> ");
