@@ -1,10 +1,8 @@
 # Osu-Songs-Auto-Backup-Restore-Utility
 
 
-A small private project created by junheah [osu.ppy.sh/u/junheah]
 
-
-v0.1.0 - now with gui!
+v0.1.0 - now with gui
 
 
 screenshots : 
